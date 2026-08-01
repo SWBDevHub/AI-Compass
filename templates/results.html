@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Compass — Results</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>AI Compass</h1>
+    <p class="subtitle">Evaluation results</p>
+
+    <!-- Governance decision — headline first -->
+    <div class="panel decision-panel">
+      <div class="badge badge-{{ decision_class }}">
+        {{ governance.decision|replace('_', ' ')|title }}
+      </div>
+      <p class="decision-rationale">{{ governance.rationale }}</p>
+    </div>
+
+    {% if governance.conditions %}
+    <div class="panel">
+      <h2>Conditions</h2>
+      <ul>
+        {% for condition in governance.conditions %}
+        <li>{{ condition }}</li>
+        {% endfor %}
+      </ul>
+      {% if governance.suggested_next_review %}
+      <p class="decision-rationale" style="text-align:left; margin-top:14px;">
+        <strong>Suggested next review:</strong> {{ governance.suggested_next_review }}
+      </p>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Risk assessment -->
+    <div class="panel">
+      <h2>Risk assessment</h2>
+      <div class="risk-grid">
+        {% for name, risk in risks.items() %}
+        <div class="risk-card">
+          <div class="risk-name">{{ name|replace('_', ' ') }}</div>
+          <span class="badge badge-{{ risk.level }}">{{ risk.level }}</span>
+          <div class="risk-rationale">{{ risk.rationale }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Evaluation plan -->
+    <div class="panel">
+      <h2>Evaluation plan</h2>
+
+      <div class="plan-subsection">
+        <h3>Test cases</h3>
+        <ul>{% for item in plan.test_cases %}<li>{{ item }}</li>{% endfor %}</ul>
+      </div>
+
+      <div class="plan-subsection">
+        <h3>Success metrics</h3>
+        <ul>{% for item in plan.success_metrics %}<li>{{ item }}</li>{% endfor %}</ul>
+      </div>
+
+      <div class="plan-subsection">
+        <h3>Acceptance thresholds</h3>
+        <ul>{% for item in plan.acceptance_thresholds %}<li>{{ item }}</li>{% endfor %}</ul>
+      </div>
+
+      <div class="plan-subsection">
+        <h3>Red-team scenarios</h3>
+        <ul>{% for item in plan.red_team_scenarios %}<li>{{ item }}</li>{% endfor %}</ul>
+      </div>
+
+      <div class="plan-subsection" style="margin-bottom:0;">
+        <h3>UAT checklist</h3>
+        <ul>{% for item in plan.uat_checklist %}<li>{{ item }}</li>{% endfor %}</ul>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a href="/download/{{ eval_id }}"><button type="button" class="secondary">Download evidence pack (.docx)</button></a>
+      <a href="/"><button type="button" class="secondary">Start new evaluation</button></a>
+    </div>
+  </div>
+</body>
+</html>

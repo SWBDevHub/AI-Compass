@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Compass — Use Case Intake</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>AI Compass</h1>
+    <p class="subtitle">Enterprise AI use case intake, risk triage &amp; governance recommendation</p>
+
+    <button type="button" class="secondary" onclick="loadDemo()">Load demo scenario</button>
+
+    <div class="panel">
+      <form action="/evaluate" method="POST" id="intake-form">
+
+        <label for="business_problem">Business problem</label>
+        <textarea id="business_problem" name="business_problem" required
+          placeholder="e.g. Summarise confidential client documents for account managers"></textarea>
+
+        <label for="proposed_tool">Proposed AI tool or model</label>
+        <input type="text" id="proposed_tool" name="proposed_tool" required
+          placeholder="e.g. Claude 3.5 Sonnet via API">
+
+        <label for="data_sensitivity">Data sensitivity</label>
+        <select id="data_sensitivity" name="data_sensitivity" required>
+          <option value="public">Public</option>
+          <option value="internal">Internal</option>
+          <option value="confidential">Confidential</option>
+          <option value="regulated">Regulated / PII / Client data</option>
+        </select>
+
+        <label for="users_affected">Users affected</label>
+        <input type="text" id="users_affected" name="users_affected" required
+          placeholder="e.g. 40 account managers">
+
+        <label for="expected_value">Expected value</label>
+        <textarea id="expected_value" name="expected_value" required
+          placeholder="e.g. Cuts document review time by ~60%"></textarea>
+
+        <label for="estimated_usage">Estimated usage</label>
+        <input type="text" id="estimated_usage" name="estimated_usage" required
+          placeholder="e.g. ~500 documents/month">
+
+        <label>Does this affect...</label>
+        <div class="checkbox-row">
+          <label><input type="checkbox" name="decision_impact" value="customers"> Customers</label>
+          <label><input type="checkbox" name="decision_impact" value="employees"> Employees</label>
+          <label><input type="checkbox" name="decision_impact" value="regulated_process"> Regulated process</label>
+        </div>
+
+        <button type="submit">Run evaluation</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    function loadDemo() {
+      const form = document.getElementById("intake-form");
+      form.business_problem.value = "Summarise confidential client documents for account managers";
+      form.proposed_tool.value = "Claude 3.5 Sonnet via API";
+      form.data_sensitivity.value = "confidential";
+      form.users_affected.value = "40 account managers";
+      form.expected_value.value = "Cuts document review time by roughly 60%";
+      form.estimated_usage.value = "~500 documents/month";
+
+      // Reset checkboxes first, then tick the ones the demo scenario needs
+      form.querySelectorAll('input[name="decision_impact"]').forEach(cb => cb.checked = false);
+      form.querySelector('input[value="employees"]').checked = true;
+      form.querySelector('input[value="regulated_process"]').checked = true;
+    }
+  </script>
+</body>
+</html>

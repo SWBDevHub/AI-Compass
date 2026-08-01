@@ -1,0 +1,215 @@
+:root {
+  --bg: #0f1115;
+  --panel: #171a21;
+  --border: #262b36;
+  --text: #e6e9ef;
+  --muted: #8b93a7;
+  --accent: #4f8cff;
+  --danger: #ff5c5c;
+  --warning: #f5a623;
+  --success: #3ddc84;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+  margin: 0;
+  padding: 40px 20px;
+}
+
+.container {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 1.6rem;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: var(--muted);
+  margin-bottom: 32px;
+  font-size: 0.95rem;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+  margin-top: 18px;
+}
+
+label:first-child { margin-top: 0; }
+
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+  width: 100%;
+  background: #0c0e12;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+textarea { resize: vertical; min-height: 80px; }
+
+.checkbox-row {
+  display: flex;
+  gap: 18px;
+  margin-top: 8px;
+}
+
+.checkbox-row label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+button {
+  margin-top: 28px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+button:hover { opacity: 0.9; }
+
+button.secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+button.secondary:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badge-low, .badge-success { background: rgba(61, 220, 132, 0.15); color: var(--success); }
+.badge-medium, .badge-warning { background: rgba(245, 166, 35, 0.15); color: var(--warning); }
+.badge-high, .badge-danger { background: rgba(255, 92, 92, 0.15); color: var(--danger); }
+
+.decision-panel {
+  text-align: center;
+  padding: 36px 28px;
+}
+
+.decision-panel .badge {
+  font-size: 1rem;
+  padding: 8px 20px;
+  margin-bottom: 14px;
+}
+
+.decision-rationale {
+  color: var(--muted);
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+h2 {
+  font-size: 1.1rem;
+  margin: 0 0 16px;
+  color: var(--text);
+}
+
+.risk-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.risk-card {
+  background: #0c0e12;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.risk-card .risk-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  text-transform: capitalize;
+}
+
+.risk-card .risk-rationale {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+.plan-subsection {
+  margin-bottom: 20px;
+}
+
+.plan-subsection h3 {
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 0 0 8px;
+}
+
+.plan-subsection ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.plan-subsection li {
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+pre {
+  background: #0c0e12;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+}
