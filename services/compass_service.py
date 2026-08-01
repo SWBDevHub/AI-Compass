@@ -45,6 +45,13 @@ Base your risk levels and decision on genuine judgement about the specific
 use case described — data sensitivity, who is affected, and whether the
 decision touches customers, employees or regulated processes should
 materially change your assessment. Do not default everything to "medium".
+
+Decision rule: if two or more risk categories are rated "high", the decision
+must be "pilot_only" or "escalate_legal_security" — not "approve" or
+"approve_with_controls" — unless the conditions you list would fully and
+specifically neutralize every one of those high-rated risks (not just
+mitigate them). Do not let "approve_with_controls" become a default safe
+middle ground for cases that carry substantial stacked risk.
 """
 
 
@@ -63,6 +70,20 @@ Decision affects: {impact}
 Return the JSON assessment now."""
 
 
+DECISION_CLASS_MAP = {
+    "approve": "success",
+    "approve_with_controls": "warning",
+    "pilot_only": "warning",
+    "reject": "danger",
+    "escalate_legal_security": "danger",
+}
+
+
+def decision_class(decision_value: str) -> str:
+    """Maps a governance decision string to a CSS badge class."""
+    return DECISION_CLASS_MAP.get(decision_value, "warning")
+
+
 def evaluate(intake: dict) -> dict:
     """
     Calls Claude once with the intake data and returns a parsed dict
@@ -71,10 +92,16 @@ def evaluate(intake: dict) -> dict:
     """
     response = client.messages.create(
         model=MODEL,
-        max_tokens=3000,
+        max_tokens=6000,
         system=SYSTEM_PROMPT,
         messages=[{"role": "user", "content": _build_user_prompt(intake)}],
     )
+
+    if response.stop_reason == "max_tokens":
+        raise ValueError(
+            "Response was cut off because it hit the max_tokens limit. "
+            "Increase max_tokens in compass_service.py."
+        )
 
     text_blocks = [block.text for block in response.content if block.type == "text"]
     if not text_blocks:

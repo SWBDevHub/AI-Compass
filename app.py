@@ -1,13 +1,12 @@
 import uuid
-from flask import Flask, render_template, request, send_file
-from services import compass_service, docx_service
+from flask import Flask, render_template, request, send_file, redirect, url_for
+from services import compass_service, docx_service, db_service
 
 app = Flask(__name__)
 
-# In-memory store, keyed by a random ID per evaluation.
-# No database in v0.1 — this resets whenever the server restarts,
-# which is an accepted tradeoff at this stage, not a bug.
-EVALUATIONS = {}
+# SQLite persistence — replaces the v0.1 in-memory dict.
+# Creates aicompass.db (and the table, if missing) on startup.
+db_service.init_db()
 
 
 @app.route("/")
@@ -18,11 +17,6 @@ def index():
 
 @app.route("/evaluate", methods=["POST"])
 def evaluate():
-    """
-    Step 1 placeholder: just capture and echo the form data back
-    so we can confirm the intake form is wired correctly before
-    we plug in the Claude call in step 2.
-    """
     intake = {
         "business_problem": request.form.get("business_problem", ""),
         "proposed_tool": request.form.get("proposed_tool", ""),
@@ -37,42 +31,75 @@ def evaluate():
     except ValueError as e:
         return render_template("intake_debug.html", intake={"ERROR": str(e)})
 
-    decision = result.get("governance_decision", {})
-    decision_class_map = {
-        "approve": "success",
-        "approve_with_controls": "warning",
-        "pilot_only": "warning",
-        "reject": "danger",
-        "escalate_legal_security": "danger",
-    }
-    decision_class = decision_class_map.get(decision.get("decision"), "warning")
+    governance = result.get("governance_decision", {})
+    decision_value = governance.get("decision")
 
     eval_id = str(uuid.uuid4())
-    EVALUATIONS[eval_id] = {"intake": intake, "result": result}
+    db_service.save_evaluation(
+        eval_id, intake, result, decision_value, compass_service.decision_class(decision_value)
+    )
+
+    # POST-redirect-GET: after submitting, redirect to a real URL for this
+    # evaluation rather than rendering results directly. This is what makes
+    # the results page revisitable/bookmarkable/linkable from the dashboard,
+    # and avoids the classic "refresh resubmits the form" problem.
+    return redirect(url_for("view_results", eval_id=eval_id))
+
+
+@app.route("/results/<eval_id>")
+def view_results(eval_id):
+    record = db_service.get_evaluation(eval_id)
+    if not record:
+        return "Evaluation not found.", 404
+
+    result = record["result"]
+    governance = result.get("governance_decision", {})
 
     return render_template(
         "results.html",
-        governance=decision,
+        governance=governance,
         risks=result.get("risk_assessment", {}),
         plan=result.get("evaluation_plan", {}),
-        decision_class=decision_class,
+        decision_class=record["decision_class"],
         eval_id=eval_id,
     )
 
 
 @app.route("/download/<eval_id>")
 def download(eval_id):
-    """Regenerates the .docx evidence pack on demand from the in-memory store."""
-    data = EVALUATIONS.get(eval_id)
-    if not data:
-        return "Evaluation not found — it may have expired or the server restarted.", 404
+    record = db_service.get_evaluation(eval_id)
+    if not record:
+        return "Evaluation not found.", 404
 
-    buffer = docx_service.build_evidence_pack(data["intake"], data["result"])
+    buffer = docx_service.build_evidence_pack(record["intake"], record["result"])
     return send_file(
         buffer,
         as_attachment=True,
         download_name="AI_Compass_Evidence_Pack.docx",
         mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    )
+
+
+@app.route("/dashboard")
+def dashboard():
+    status_filter = request.args.get("status")
+
+    all_evaluations = db_service.list_evaluations()
+
+    counts = {}
+    for e in all_evaluations:
+        counts[e["decision"]] = counts.get(e["decision"], 0) + 1
+
+    evaluations = all_evaluations
+    if status_filter:
+        evaluations = [e for e in all_evaluations if e["decision"] == status_filter]
+
+    return render_template(
+        "dashboard.html",
+        evaluations=evaluations,
+        counts=counts,
+        active_filter=status_filter,
+        total=len(all_evaluations),
     )
 
 

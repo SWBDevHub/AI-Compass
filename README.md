@@ -34,8 +34,8 @@ Enterprises adopting AI tools need a structured intake and governance process, b
 
 **1. Clone the repo**
 ```bash
-git clone https://github.com/SWBDevHub/AICompass.git
-cd AICompass
+git clone https://github.com/SWBDevHub/AI-Compass.git
+cd AI-Compass
 ```
 
 **2. Install dependencies**
